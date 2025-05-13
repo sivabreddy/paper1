@@ -1,0 +1,2 @@
+*.h5 filter=lfs diff=lfs merge=lfs -text
+segnet_100.h5 filter=lfs diff=lfs merge=lfs -text
