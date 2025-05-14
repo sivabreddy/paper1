@@ -89,16 +89,26 @@
 #         window.close()
 #
 #
+"""
+Medical Image Analysis GUI
+-------------------------
+Provides interface for:
+- Selecting dataset and training parameters
+- Running image analysis pipeline
+- Displaying performance metrics (Accuracy, Sensitivity, Specificity)
+- Visualizing results in bar charts
+"""
+
 import tkinter as tk
 from tkinter import ttk
 import numpy as np
 import matplotlib.pyplot as plt
-from Main import Run
+from Main import Run  # Main processing module
 
-# Create the main window
+# Create and configure main application window
 root = tk.Tk()
-root.title('142705')
-root.configure(bg='#004d4d')  # Dark teal background similar to DarkTeal9
+root.title('142705')  # Application title/number
+root.configure(bg='#004d4d')  # Dark teal background similar to DarkTeal9 theme
 
 # Style configuration
 style = ttk.Style()
@@ -124,8 +134,15 @@ for row_key, row_name in zip(['1', '2', '3'], ['Accuracy', 'Sensitivity', 'Speci
         key = f'{row_key}{col_key}'
         result_entries[key] = tk.StringVar()
 
-# Function to plot graphs
 def plot_graph(result_1, result_2, result_3):
+    """
+    Creates bar chart comparing performance metrics across models
+    
+    Args:
+        result_1: Accuracy values for each model
+        result_2: Sensitivity values for each model
+        result_3: Specificity values for each model
+    """
     plt.figure(dpi=120)
     loc, result = [], []
     result.append(result_1)
@@ -155,8 +172,13 @@ def plot_graph(result_1, result_2, result_3):
     plt.legend(loc=(0.25, 0.25))
     plt.show()
 
-# Function to handle start button click
 def start_process():
+    """
+    Handles Start button click - runs main analysis pipeline
+    - Calculates training percentage based on selection
+    - Calls main processing function from Run module
+    - Updates UI with results
+    """
     global Acc, Sen, Spe
 
     if selection_var.get() == 'TrainingData(%)':
@@ -174,8 +196,12 @@ def start_process():
         result_entries[f'2{i+1}'].set(Sen[i])
         result_entries[f'3{i+1}'].set(Spe[i])
 
-# Function to run graph
 def run_graph():
+    """
+    Handles Run Graph button click
+    - Validates results are available
+    - Calls plot_graph to visualize metrics
+    """
     if Acc and Sen and Spe:
         plot_graph(Acc, Sen, Spe)
 

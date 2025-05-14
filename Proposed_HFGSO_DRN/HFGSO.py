@@ -86,10 +86,30 @@
 #
 #
 #
+"""
+Hybrid Feature Guided Swarm Optimization (HFGSO)
+-----------------------------------------------
+Nature-inspired optimization algorithm combining:
+- Henry's gas solubility optimization
+- Particle swarm optimization
+- Feature guidance mechanisms
+
+Used to optimize neural network weights in the proposed model
+"""
+
 import numpy as np
 import random, math
 
 def algm(w):
+    """
+    HFGSO algorithm for optimizing neural network weights
+    
+    Args:
+        w: List of network weight matrices to optimize
+        
+    Returns:
+        List of optimized weight matrices with original shapes preserved
+    """
     # Store original shapes to reconstruct later
     original_shapes = [weight.shape for weight in w]
 
@@ -113,6 +133,10 @@ def algm(w):
     Tmax = 10
 
     def generate(N, M):
+        """
+        Generates initial population of solutions
+        within weight value bounds [lb, ub]
+        """
         data = []
         for i in range(N):
             tem = []
@@ -122,6 +146,10 @@ def algm(w):
         return data
 
     def bound(arr):
+        """
+        Ensures solution values stay within bounds
+        Replaces out-of-bounds values with random values in [lb, ub]
+        """
         data = []
         for i in range(len(arr)):
             tem = []
@@ -134,6 +162,10 @@ def algm(w):
         return data
 
     def fitness(soln):
+        """
+        Evaluates solution fitness
+        Higher values indicate better solutions
+        """
         Fit = []
         for i in range(len(soln)):
             F = 0

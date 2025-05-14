@@ -1,9 +1,34 @@
+"""
+ResNet Baseline Execution
+------------------------
+Main script for running baseline ResNet model including:
+- Data preparation
+- Model training
+- Performance evaluation
+"""
+
 import numpy as np
 from random import shuffle as array
 from sklearn.model_selection import train_test_split
 from Proposed_HFGSO_DRN import DRN,HFGSO
 
-def classify(xx,yy,tr,A,Se,Sp):
+def classify(xx, yy, tr, A, Se, Sp):
+    """
+    Main function to train and evaluate baseline ResNet model
+    
+    Args:
+        xx: Input features
+        yy: Labels
+        tr: Training percentage
+        A: List to store accuracy results
+        Se: List to store sensitivity results
+        Sp: List to store specificity results
+        
+    Calculates and stores:
+    - Accuracy (A)
+    - Sensitivity (Se)
+    - Specificity (Sp)
+    """
     x_train, x_test, y_train, y_test = train_test_split(xx, yy, train_size=tr-0.1)
     target = np.concatenate((y_train,y_test))
     model = DRN.classify(np.array(x_train), np.array(y_train))

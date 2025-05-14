@@ -1,14 +1,26 @@
-import glob,cv2,os
+"""
+Image Preprocessing Pipeline
+---------------------------
+This module handles the complete image processing workflow including:
+- ROI extraction
+- T2FCS filtering (Two-Threshold Fuzzy Contrast Stretching)
+- Segmentation using SegNet
+- Data augmentation
+- Feature extraction
+"""
+
+import glob, cv2, os
 import re
-from Main import Proposed_SegNet,Augmentation
+from Main import Proposed_SegNet, Augmentation
 import numpy as np
 
 
-new_im_path='Output/roi'
-new_fil_path='Output/t2fcs'
-new_seg_path='Output/segmented'
-new_aug1_path='Output/rotation'
-new_aug2_path='Output/cropping'
+# Output directory paths for processed images
+new_im_path = 'Output/roi'       # ROI extracted images
+new_fil_path = 'Output/t2fcs'    # T2FCS filtered images
+new_seg_path = 'Output/segmented' # Segmented images
+new_aug1_path = 'Output/rotation' # Rotated augmented images
+new_aug2_path = 'Output/cropping' # Cropped augmented images
 
 if not(os.path.exists('Output')):
     os.mkdir('Output')
@@ -26,6 +38,16 @@ if not(os.path.exists(new_aug2_path)):
     os.mkdir(new_aug2_path)
 
 def T2FCS(m5):
+    """
+    Two-Threshold Fuzzy Contrast Stretching (T2FCS) filter
+    Enhances image contrast using fuzzy logic and neighborhood processing
+    
+    Args:
+        m5: Input BGR image (numpy array)
+    
+    Returns:
+        Filtered image with enhanced contrast (numpy array)
+    """
     def T2FCS_Filtering(image, row, col):
         currentElement = 0
         left = 0
@@ -137,7 +159,17 @@ def T2FCS(m5):
             img_t2fcs[i, j, 2] = T2FCS_Filtering(m5[:, :, 2], i, j)
     return img_t2fcs
 
-def mark_seg_in_orgim(input,seg):
+def mark_seg_in_orgim(input, seg):
+    """
+    Marks segmentation results on original image for visualization
+    
+    Args:
+        input: Original input image
+        seg: Segmentation mask (binary image)
+    
+    Returns:
+        Image with segmentation marked (numpy array)
+    """
     input = input[:, :, 0]
     input = cv2.resize(input, dsize=(256, 256), interpolation=cv2.INTER_NEAREST)
     input = cv2.cvtColor(input, cv2.COLOR_GRAY2BGR)
@@ -150,7 +182,17 @@ def mark_seg_in_orgim(input,seg):
     return input
 
 
-def segment(input_im,org):
+def segment(input_im, org):
+    """
+    Performs image segmentation using SegNet model
+    
+    Args:
+        input_im: Input image to segment
+        org: Original image for reference
+    
+    Returns:
+        Segmented image (numpy array)
+    """
     input_im = cv2.resize(input_im, dsize=(256, 256), interpolation=cv2.INTER_NEAREST)
     org = cv2.resize(org, dsize=(256, 256), interpolation=cv2.INTER_NEAREST)
     org = cv2.cvtColor(org, cv2.COLOR_BGR2GRAY)
@@ -159,7 +201,17 @@ def segment(input_im,org):
     seg = mark_seg_in_orgim(input_im,seg)
     return seg
 
-def Select_Roi(med_im,count):
+def Select_Roi(med_im, count):
+    """
+    Selects Region of Interest (ROI) from input image
+    
+    Args:
+        med_im: Input image
+        count: Counter for saving output files
+    
+    Returns:
+        Extracted ROI (numpy array)
+    """
     # Select ROI
     check_image = med_im
     r, c,_ = np.asarray((check_image.shape)) // 2

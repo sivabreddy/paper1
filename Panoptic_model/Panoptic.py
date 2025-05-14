@@ -1,3 +1,14 @@
+"""
+Panoptic Model Implementation
+---------------------------
+Based on ResNet50 architecture with:
+- Custom input preprocessing
+- SMOTE for class imbalance handling
+- Performance metrics calculation
+
+Part of model comparison for medical image analysis
+"""
+
 # import keras
 import logging
 logging.getLogger("tensorflow").setLevel(logging.WARNING)
@@ -22,6 +33,19 @@ warnings.filterwarnings("ignore")
 deprecation._PRINT_DEPRECATION_WARNINGS = False
 
 def rsnt_50(x_train, y_train, x_test, y_test, ln):
+    """
+    ResNet50-based model implementation
+    
+    Args:
+        x_train: Training features
+        y_train: Training labels
+        x_test: Test features
+        y_test: Test labels
+        ln: Number of output classes
+        
+    Returns:
+        tuple: (predictions, ground_truth)
+    """
     x_train=np.tile(x_train, (1, 30))
     a,b = 32,32 # (size of array)
     x_train = np.asarray(x_train[:,:a*b])
@@ -46,7 +70,23 @@ def rsnt_50(x_train, y_train, x_test, y_test, ln):
     return predict,target
 
 
-def classify(data,lab,tr,A,sen,spe):
+def classify(data, lab, tr, A, sen, spe):
+    """
+    Main Panoptic model evaluation function
+    
+    Args:
+        data: Input features
+        lab: Labels
+        tr: Training percentage
+        A: List to store accuracy results
+        sen: List to store sensitivity results
+        spe: List to store specificity results
+        
+    Calculates and stores:
+    - Accuracy (A)
+    - Sensitivity (sen)
+    - Specificity (spe)
+    """
 
     from imblearn.over_sampling import  SMOTE as sm
     final_feat,final_label = sm().fit_resample(data,lab)

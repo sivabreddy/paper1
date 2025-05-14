@@ -12,6 +12,16 @@ logging.getLogger('tensorflow').disabled = True
 warnings.filterwarnings("ignore")
 
 def classify(x_train, y_train):
+    """
+    Main function to create and configure the HFGSO-DRN model
+    
+    Args:
+        x_train: Training features
+        y_train: Training labels
+        
+    Returns:
+        Compiled Keras model ready for training
+    """
 
     # Setting Training Hyperparameters
     batch_size = 10
@@ -63,7 +73,26 @@ def classify(x_train, y_train):
                      num_filters=16,
                      kernel_size=3,
                      strides=1,
-                     activation='relu', batch_normalization=True):
+                     activation='relu',
+                     batch_normalization=True):
+        """
+        Basic ResNet building block
+        Implements:
+        - Convolution
+        - Batch normalization
+        - Activation
+        
+        Args:
+            inputs: Input tensor
+            num_filters: Number of filters
+            kernel_size: Convolution kernel size
+            strides: Convolution stride
+            activation: Activation function
+            batch_normalization: Whether to use batch norm
+            
+        Returns:
+            Output tensor
+        """
         conv = Conv2D(num_filters,
                       kernel_size=kernel_size,
                       strides=strides,
@@ -88,6 +117,18 @@ def classify(x_train, y_train):
 
     #
     def resnet_v1(input_shape, depth, num_classes=num_classes):
+        """
+        ResNet Version 1 implementation
+        Uses identity shortcut connections
+        
+        Args:
+            input_shape: Shape of input tensor
+            depth: Number of layers
+            num_classes: Number of output classes
+            
+        Returns:
+            Keras Model instance
+        """
         if (depth - 2) % 6 != 0:
             raise ValueError('depth should be 6n + 2 (eg 20, 32, 44 in [a])')
         # Start model definition.
@@ -136,6 +177,18 @@ def classify(x_train, y_train):
 
     # ResNet V2 architecture
     def resnet_v2(input_shape, depth, num_classes=num_classes):
+        """
+        ResNet Version 2 implementation
+        Uses pre-activation shortcut connections
+        
+        Args:
+            input_shape: Shape of input tensor
+            depth: Number of layers
+            num_classes: Number of output classes
+            
+        Returns:
+            Keras Model instance
+        """
         if (depth - 2) % 9 != 0:
             raise ValueError('depth should be 9n + 2 (eg 56 or 110 in [b])')
         # Start model definition.

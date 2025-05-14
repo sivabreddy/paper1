@@ -1,3 +1,15 @@
+"""
+Focal Net Implementation
+-----------------------
+CNN model with:
+- Convolutional layers
+- LeakyReLU activation
+- Max pooling
+- Custom evaluation metrics
+
+Part of model comparison for medical image analysis
+"""
+
 import numpy as np
 import math
 from keras.optimizers import Adam
@@ -9,7 +21,20 @@ from tensorflow.keras.layers import LeakyReLU
 from sklearn.model_selection import train_test_split
 from random import shuffle as array
 
-def main_CNN(X_train,X_test,Y_train,Y_test,tpr):
+def main_CNN(X_train, X_test, Y_train, Y_test, tpr):
+    """
+    Main Focal Net CNN implementation
+    
+    Args:
+        X_train: Training features
+        X_test: Test features
+        Y_train: Training labels
+        Y_test: Test labels
+        tpr: Training percentage
+        
+    Returns:
+        Predictions for test set
+    """
     train_X = X_train.reshape(-1, 1,X_train.shape[1], 1)
     test_X = X_test.reshape(-1, 1,X_train.shape[1], 1)
     train_X = train_X.astype('float32')
@@ -37,6 +62,13 @@ def main_CNN(X_train,X_test,Y_train,Y_test,tpr):
 
 
 def process(data):
+    """
+    Helper function for data processing
+    Sorts data in descending order
+    
+    Args:
+        data: Input data to process
+    """
     return data.sort(reverse=True)
 def bound(f_data):
 
@@ -50,7 +82,23 @@ def bound(f_data):
         fe.append(tem)  # add 1 row of array value to fe
     return fe
 
-def callmain(x1,y1,tpr,A,Se,Sp):
+def callmain(x1, y1, tpr, A, Se, Sp):
+    """
+    Main Focal Net evaluation function
+    
+    Args:
+        x1: Input features
+        y1: Labels
+        tpr: Training percentage
+        A: List to store accuracy results
+        Se: List to store sensitivity results
+        Sp: List to store specificity results
+        
+    Calculates and stores:
+    - Accuracy (A)
+    - Sensitivity (Se)
+    - Specificity (Sp)
+    """
     X_train, X_test, y_train, y_test = train_test_split(x1, y1, train_size=tpr-0.2)
     target = np.concatenate((y_train,y_test))
     pred = main_CNN(np.array(X_train), np.array(X_test), np.array(y_train), np.array(y_test),tpr)

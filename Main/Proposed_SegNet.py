@@ -1,10 +1,19 @@
+"""
+Proposed SegNet Model for Medical Image Segmentation
+---------------------------------------------------
+Implements a modified SegNet architecture with:
+- Encoder-decoder structure
+- Batch normalization
+- Custom loss function (prop_loss_fn)
+- Hybrid Feature Guided Swarm Optimization (HFGSO)
+"""
+
 from keras.models import Model
 from keras.layers import Activation, Dense, BatchNormalization, Conv2D, Conv2DTranspose, MaxPooling2D, UpSampling2D, Input, Reshape
 from keras.optimizers import SGD
 import cv2
 from warnings import filterwarnings
-# from tensorflow._api.v1 import math
-import tensorflow as tf
+import tensorflow as tf  # Using compat.v1 for math operations
 math = tf.compat.v1.math
 filterwarnings('ignore')
 from keras import backend as K
@@ -13,7 +22,17 @@ from skimage.transform import resize
 from Proposed_HFGSO_DRN import HFGSO
 
 
-def Segnet_Segmentation(inp_img,org):
+def Segnet_Segmentation(inp_img, org):
+    """
+    Performs segmentation using the proposed SegNet model
+    
+    Args:
+        inp_img: Input image to segment (numpy array)
+        org: Original image for reference (numpy array)
+    
+    Returns:
+        Segmented image (numpy array)
+    """
     X_test = np.zeros((1, 192, 256, 3), dtype=np.uint8)
 
     ################################# X-test ###############################
@@ -24,20 +43,33 @@ def Segnet_Segmentation(inp_img,org):
     image = np.expand_dims(image, axis=-1)
     # insert the image into X_test
     X_test[0] = image
-    def iou(y_true, y_pred, smooth = 100):
+    def iou(y_true, y_pred, smooth=100):
+        """
+        Intersection over Union (IoU) metric
+        Measures overlap between predicted and ground truth segmentation
+        """
         intersection = K.sum(K.abs(y_true * y_pred), axis=-1)
         sum_ = K.sum(K.square(y_true), axis = -1) + K.sum(K.square(y_pred), axis=-1)
         jac = (intersection + smooth) / (sum_ - intersection + smooth)
         return jac
 
 
-    def dice_coef(y_true, y_pred, smooth = 100):
+    def dice_coef(y_true, y_pred, smooth=100):
+        """
+        Dice coefficient metric
+        Measures similarity between predicted and ground truth segmentation
+        """
         y_true_f = K.flatten(y_true)
         y_pred_f = K.flatten(y_pred)
         intersection = K.sum(y_true_f * y_pred_f)
         return (2. * intersection + smooth) / (K.sum(y_true_f) + K.sum(y_pred_f) + smooth)
 
-    def prop_loss_fn(y_true, y_pred, smooth = 1e-15):
+    def prop_loss_fn(y_true, y_pred, smooth=1e-15):
+        """
+        Custom loss function combining:
+        - Cross-entropy (weighted by beta=0.75)
+        - Negative log of Dice coefficient
+        """
         B = 0.75 # beta
         y_true_f = K.flatten(y_true)
         y_pred_f = K.flatten(y_pred)
@@ -81,7 +113,11 @@ def Segnet_Segmentation(inp_img,org):
         '''
         return K.mean(K.equal(y_true, K.round(y_pred)))
 
-    # Encoding layer
+    # --------------------------
+    # Encoder Network (Downsample)
+    # --------------------------
+    # Stack of convolutional blocks with:
+    # Conv -> BatchNorm -> ReLU -> MaxPool
     img_input = Input(shape= (192, 256, 3))
     x = Conv2D(64, (3, 3), padding='same', name='conv1',strides= (1,1))(img_input)
     x = BatchNormalization(name='bn1')(x)
@@ -134,7 +170,11 @@ def Segnet_Segmentation(inp_img,org):
 
     x = Dense(1024, activation = 'relu', name='fc1')(x)
     x = Dense(1024, activation = 'relu', name='fc2')(x)
-    # Decoding Layer
+    # --------------------------
+    # Decoder Network (Upsample)
+    # --------------------------
+    # Symmetric to encoder with:
+    # Upsample -> ConvTranspose -> BatchNorm -> ReLU
     x = UpSampling2D()(x)
     x = Conv2DTranspose(512, (3, 3), padding='same', name='deconv1')(x)
     x = BatchNormalization(name='bn14')(x)
@@ -186,8 +226,13 @@ def Segnet_Segmentation(inp_img,org):
     pred = Reshape((192,256))(x)
     model = Model(inputs=img_input, outputs=pred)
 
-    model.compile(optimizer= SGD(lr=0.001, momentum=0.9, decay=0.0005, nesterov=False), loss= [prop_loss_fn]
-                  , metrics=[iou, dice_coef, precision, recall, accuracy])
+    # Compile model with:
+    # - SGD optimizer (learning rate 0.001)
+    # - Custom loss function
+    # - Multiple segmentation metrics
+    model.compile(optimizer=SGD(lr=0.001, momentum=0.9, decay=0.0005, nesterov=False),
+                 loss=[prop_loss_fn],
+                 metrics=[iou, dice_coef, precision, recall, accuracy])
     w = model.get_weights()
     model.set_weights(w + HFGSO.algm(w))
     model.load_weights('segnet_100.h5')

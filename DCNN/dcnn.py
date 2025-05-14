@@ -1,3 +1,14 @@
+"""
+DCNN (Deep Convolutional Neural Network) Implementation
+------------------------------------------------------
+Core CNN model architecture with:
+- Convolutional layers
+- Batch normalization
+- Pooling layers
+- Fully connected layers
+- Softmax output
+"""
+
 import numpy as np
 import math
 import random
@@ -5,6 +16,16 @@ from DCNN.nn_layers import Conv, MaxPooling, FullyConnect, Activation, Softmax, 
 
 
 class CNN(object):
+    """
+    CNN model class implementing:
+    - Convolutional blocks (Conv -> BatchNorm -> ReLU -> Pool)
+    - Fully connected layers
+    - Softmax classifier
+    
+    Args:
+        x_shape: Input shape (channels, height, width)
+        label_num: Number of output classes
+    """
     def __init__(self, x_shape, label_num):
         self.batch_size, lr = 16, 1e-3
         # Conv > Normalization > Activation > Dropout > Pooling
@@ -29,6 +50,13 @@ class CNN(object):
             fc2, softmax]
 
     def fit(self, train_x, labels):
+        """
+        Trains the CNN model
+        
+        Args:
+            train_x: Training data
+            labels: Training labels
+        """
         n_data = train_x.shape[0]
         train_y = np.zeros((n_data, len(labels) * 2))
         train_y[np.arange(n_data), labels] = 1
@@ -41,6 +69,16 @@ class CNN(object):
                 y = train_y[permut[b_idx, :]]
 
     def predict(self, x, ty):
+        """
+        Makes predictions using the CNN model
+        
+        Args:
+            x: Input data
+            ty: Target labels
+            
+        Returns:
+            Predicted class labels
+        """
         out, ul = x, np.unique(ty)
         pre = []
         for layer in self.layers:
@@ -95,6 +133,18 @@ def formt(x, y, rs):
 
 
 def callmain(x, y, ty, tp):
+    """
+    Main DCNN execution function
+    
+    Args:
+        x: Input features
+        y: Labels
+        ty: Test labels
+        tp: Training percentage
+        
+    Returns:
+        Model predictions
+    """
     rs = int(math.sqrt(len(x[0])))
     x = x.reshape(-1, 1, rs, rs)
     test_ratio = (100 - tp) / 100

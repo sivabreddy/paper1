@@ -1,12 +1,23 @@
+"""
+Data Preparation Script
+----------------------
+Prepares medical image dataset by:
+- Creating required directory structure
+- Processing raw images and ground truth masks
+- Converting ground truth to binary format
+- Resizing and saving processed images
+"""
+
 import os
 import cv2
 import numpy as np
 
 
-im_path='Database'
-gt_path='Database_gt'
-new_im_path='data/im'
-new_gt_path='data/gt'
+# Path configuration
+im_path = 'Database'        # Raw input images directory
+gt_path = 'Database_gt'     # Ground truth images directory
+new_im_path = 'data/im'     # Processed images output directory
+new_gt_path = 'data/gt'     # Processed ground truth output directory
 
 if not(os.path.exists('data')):
     os.mkdir('data')
@@ -17,6 +28,13 @@ if not(os.path.exists(new_gt_path)):
 
 
 try:
+    """
+    Main data processing loop:
+    1. Recursively walks through directory structure
+    2. Processes each image/ground truth pair
+    3. Converts ground truth to binary mask
+    4. Saves processed versions
+    """
     bpath=os.getcwd()
     gt_path_full=os.path.join(bpath,gt_path)
     d1=os.listdir(gt_path_full)
@@ -41,15 +59,19 @@ try:
                     im_filename = os.path.join(img_brach_4, d4[i4])
                     f1 = os.path.splitext(gt_filename)
                     # count += 1
-                    if (f1[-1].lower()=='.jpg')|(f1[-1].lower()=='.png'):
+                    # Process only JPG/PNG images
+                    if (f1[-1].lower() == '.jpg') | (f1[-1].lower() == '.png'):
+                        # Read and resize images
                         gt_im=cv2.imread(gt_filename)
                         orig_im = cv2.imread(im_filename)
                         gt_im2 = cv2.resize(gt_im, (128,128),interpolation=cv2.INTER_NEAREST)
                         orig_im2 = cv2.resize(orig_im, (128, 128), interpolation=cv2.INTER_NEAREST)
-                        tmp1 = gt_im2[:, :, 0] == 0
-                        tmp2 = gt_im2[:, :, 1] == 242
-                        tmp3 = gt_im2[:, :, 2] == 255
-                        gt_im_binary=(tmp1 & tmp2) & tmp3
+                        # Convert ground truth to binary mask using specific color values
+                        # (R=0, G=242, B=255) indicates positive class
+                        tmp1 = gt_im2[:, :, 0] == 0    # Red channel check
+                        tmp2 = gt_im2[:, :, 1] == 242  # Green channel check
+                        tmp3 = gt_im2[:, :, 2] == 255  # Blue channel check
+                        gt_im_binary = (tmp1 & tmp2) & tmp3  # Combine checks
                         gt_im_binary.astype(np.float)
                         gt_im_binary=gt_im_binary*255
                         print('im_count=%d, count=%d'%(im_count,count))

@@ -1,10 +1,24 @@
+"""
+Data Reading Utilities
+---------------------
+Provides functions for reading:
+- Feature vectors from Feat.csv
+- Labels from Label.csv
+"""
+
 import csv
 import numpy as np
 
 
 def read_data():
-    #Read data from the csv file
-    file_name = "Feat.csv"                  #dataset location
+    """
+    Reads feature vectors from Feat.csv
+    
+    Returns:
+        List of lists containing feature vectors
+        Each inner list represents one sample's features
+    """
+    file_name = "Feat.csv"  # Feature data file
     datas = []
     with open(file_name, 'rt')as f:
         content = csv.reader(f)                        #read csv content
@@ -16,8 +30,14 @@ def read_data():
     return datas
 
 def read_label():
-    #Read data from the csv file
-    file_name = "Label.csv"                  #dataset location
+    """
+    Reads class labels from Label.csv
+    
+    Returns:
+        List of integer labels (0 or 1)
+        Each element represents one sample's class
+    """
+    file_name = "Label.csv"  # Label data file
     datas = []
     with open(file_name, 'rt')as f:
         content = csv.reader(f)                        #read csv content

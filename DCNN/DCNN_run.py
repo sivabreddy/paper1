@@ -1,8 +1,32 @@
+"""
+DCNN (Deep Convolutional Neural Network) Model Execution
+-------------------------------------------------------
+Main script for running DCNN model including:
+- Data preparation and splitting
+- Feature processing
+- Model evaluation
+"""
+
 import math, numpy as np
-from DCNN import dcnn
+from DCNN import dcnn  # Main DCNN model implementation
 
 
 def train_test_split(data, clas, tr_per):
+    """
+    Splits data into training and test sets while maintaining class balance
+    
+    Args:
+        data: Input features
+        clas: Class labels
+        tr_per: Training percentage (0-100)
+    
+    Returns:
+        train_x: Training features
+        train_y: Training labels
+        test_x: Test features
+        test_y: Test labels
+        label: All labels
+    """
     train_x, train_y = [], []  # training data, training class
     test_x, test_y, label = [], [], []  # testing data, testing class, label
     uni = np.unique(clas)  # unique class
@@ -28,6 +52,15 @@ def train_test_split(data, clas, tr_per):
 
 
 def bound(f_data):
+    """
+    Reshapes feature data into square matrices for CNN input
+    
+    Args:
+        f_data: Flattened feature vectors
+        
+    Returns:
+        fe: Reshaped features as square matrices
+    """
     fe = []
     sq = int(math.sqrt(len(f_data[0])))
     n = int(sq * sq)
@@ -41,7 +74,23 @@ def bound(f_data):
 
 
 
-def callmain(data, label,trp,acc,sen,spe):
+def callmain(data, label, trp, acc, sen, spe):
+    """
+    Main DCNN evaluation function
+    
+    Args:
+        data: Input features
+        label: Ground truth labels
+        trp: Training percentage
+        acc: List to store accuracy results
+        sen: List to store sensitivity results
+        spe: List to store specificity results
+    
+    Calculates and stores:
+    - Accuracy (acc)
+    - Sensitivity (sen)
+    - Specificity (spe)
+    """
     train_x, train_y, test_x, test_y, target = train_test_split(data, label, trp)  # splitting training & testing data
     feature = np.asarray(bound(data))
     feature = feature.astype('float')
