@@ -222,11 +222,11 @@ def Select_Roi(med_im, count):
 def augment():
     file_path = 'Output/segmented//*.png'
     files = glob.glob(file_path)
-    files.sort(key=lambda f: int(re.sub('\D', '', f)))
+    files.sort(key=lambda f: int(re.sub(r'\D', '', f)))
 
     g_path = 'data/gt//*.png'
     files_g = glob.glob(g_path)
-    files_g.sort(key=lambda f: int(re.sub('\D', '', f)))
+    files_g.sort(key=lambda f: int(re.sub(r'\D', '', f)))
     count = 0
     Feat = []
     label = []
@@ -274,9 +274,9 @@ def pre_process():
     file_path='data/im//*.png'
     gt_path = 'data/gt/*.png'
     files_gt = glob.glob(gt_path)
-    files_gt.sort(key=lambda f: int(re.sub('\D', '', f)))
+    files_gt.sort(key=lambda f: int(re.sub(r'\D', '', f)))
     files = glob.glob(file_path)
-    files.sort(key=lambda f: int(re.sub('\D', '', f)))
+    files.sort(key=lambda f: int(re.sub(r'\D', '', f)))
     count=0
     for i in range(count,len(files)):
         print(files[i])

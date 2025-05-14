@@ -18,9 +18,10 @@ def read_data():
         List of lists containing feature vectors
         Each inner list represents one sample's features
     """
-    file_name = "Feat.csv"  # Feature data file
+    import os
+    file_path = os.path.join(os.path.dirname(__file__), "Feat.csv")  # Feature data file
     datas = []
-    with open(file_name, 'rt')as f:
+    with open(file_path, 'rt')as f:
         content = csv.reader(f)                        #read csv content
         for rows in content:                           #row of data
             tem = []
@@ -37,9 +38,10 @@ def read_label():
         List of integer labels (0 or 1)
         Each element represents one sample's class
     """
-    file_name = "Label.csv"  # Label data file
+    import os
+    file_path = os.path.join(os.path.dirname(__file__), "Label.csv")  # Label data file
     datas = []
-    with open(file_name, 'rt')as f:
+    with open(file_path, 'rt')as f:
         content = csv.reader(f)                        #read csv content
         for rows in content:                           #row of data
             for cols in rows:                          #attributes in each row
