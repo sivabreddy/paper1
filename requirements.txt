@@ -7,6 +7,7 @@
 # Or install all requirements in system Python:
 # sudo /usr/bin/python3 -m pip install -r requirements.txt
 # The first approach is recommended as all dependencies are already properly configured in Python 3.12.
+# run the GUI, python -m Main.GUI
 
 # Main packages we installed
 matplotlib==3.10.3

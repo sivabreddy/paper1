@@ -20,6 +20,7 @@ def read_data():
     """
     import os
     file_path = os.path.join(os.path.dirname(__file__), "Feat.csv")  # Feature data file
+    print(f"Reading features from: {file_path}")  # Debug: show file path
     datas = []
     with open(file_path, 'rt')as f:
         content = csv.reader(f)                        #read csv content
@@ -40,6 +41,7 @@ def read_label():
     """
     import os
     file_path = os.path.join(os.path.dirname(__file__), "Label.csv")  # Label data file
+    print(f"Reading labels from: {file_path}")  # Debug: show file path
     datas = []
     with open(file_path, 'rt')as f:
         content = csv.reader(f)                        #read csv content
