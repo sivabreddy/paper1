@@ -21,8 +21,14 @@ def read_data():
     import os
     file_path = os.path.join(os.path.dirname(__file__), "Feat.csv")  # Feature data file
     print(f"Reading features from: {file_path}")  # Debug: show file path
+    print(f"Current working directory: {os.getcwd()}")  # Debug: show working dir
+    print(f"File exists: {os.path.exists(file_path)}")  # Debug: check file existence
+    
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Feat.csv not found at: {file_path}")
+
     datas = []
-    with open(file_path, 'rt')as f:
+    with open(file_path, 'rt') as f:
         content = csv.reader(f)                        #read csv content
         for rows in content:                           #row of data
             tem = []
@@ -42,8 +48,14 @@ def read_label():
     import os
     file_path = os.path.join(os.path.dirname(__file__), "Label.csv")  # Label data file
     print(f"Reading labels from: {file_path}")  # Debug: show file path
+    print(f"Current working directory: {os.getcwd()}")  # Debug: show working dir
+    print(f"File exists: {os.path.exists(file_path)}")  # Debug: check file existence
+    
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Label.csv not found at: {file_path}")
+
     datas = []
-    with open(file_path, 'rt')as f:
+    with open(file_path, 'rt') as f:
         content = csv.reader(f)                        #read csv content
         for rows in content:                           #row of data
             for cols in rows:                          #attributes in each row
