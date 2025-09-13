@@ -1,0 +1,62 @@
+# Role of Ground Truth Images in Medical Image Segmentation
+
+## What are Ground Truth Images?
+
+Ground truth images in this project are binary annotation masks that precisely define the regions of interest in corresponding medical images. Each ground truth image is a binary representation where:
+- White pixels (value 255) indicate the region of interest (e.g., a tumor, organ, or abnormal tissue)
+- Black pixels (value 0) indicate background or non-target areas
+
+## How Ground Truth Images Are Created
+
+In the `Main/prepare_data.py` script, ground truth images are processed from RGB annotation files:
+1. Original ground truth images contain specific color markings (RGB: 0, 242, 255) indicating regions of interest
+2. These colored regions are converted to white pixels in binary masks
+3. All other areas become black pixels
+4. The resulting binary masks serve as precise "answers" for training and evaluation
+
+## Critical Roles in the Pipeline
+
+### 1. Training Supervision
+- **Segmentation Models**: The proposed SegNet and other models learn to reproduce the ground truth masks
+- **Loss Calculation**: During training, models compare their predictions with ground truth to calculate error
+- **Backpropagation**: Differences between predictions and ground truth guide weight adjustments
+
+### 2. Performance Evaluation
+- **Accuracy Metrics**: Ground truth enables calculation of:
+  - Intersection over Union (IoU)
+  - Dice coefficient
+  - Precision and Recall
+  - Overall accuracy
+- **Model Comparison**: All five models (DCNN, Panoptic, Focal-Net, ResNet, HFGSO-DRN) are evaluated against the same ground truth
+
+### 3. Feature Engineering
+In `Main/Pre_processing.py`, ground truth masks are used for intelligent feature extraction:
+- **Histogram Analysis**: Separate histograms computed for:
+  - Pixels INSIDE the ground truth region (target tissue)
+  - Pixels OUTSIDE the ground truth region (background)
+- **Class Labeling**: Features from inside regions get label "1", outside regions get label "0"
+
+### 4. Data Augmentation Validation
+When images are rotated or cropped during augmentation:
+- The same geometric transformations are conceptually applied to ground truth masks
+- This ensures augmented images maintain accurate segmentation references
+- Models learn to segment consistently across transformed views
+
+## Practical Example
+
+Consider a prostate MRI scan:
+1. **Input Image**: MRI showing prostate gland among other tissues
+2. **Ground Truth**: Binary mask where white pixels outline the prostate boundary
+3. **Model Training**: SegNet learns to map the MRI to the prostate outline
+4. **Feature Extraction**: Histograms capture texture differences between prostate tissue and surrounding areas
+5. **Evaluation**: Model predictions compared against ground truth to measure accuracy
+
+## Why Ground Truth Is Essential
+
+Without ground truth images, this would be unsupervised learning, which is much less effective for precise medical segmentation. The ground truth provides:
+- **Quantitative Targets**: Clear objectives for what the models should learn
+- **Performance Benchmarks**: Objective measures of model quality
+- **Clinical Relevance**: Medically accurate annotations validated by experts
+- **Consistent Training**: All models learn from the same reference standard
+
+This supervised approach ensures that all models in the comparison are evaluated on the same challenging task with objectively correct answers, enabling fair assessment of their relative performance for medical image segmentation.

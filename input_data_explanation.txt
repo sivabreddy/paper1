@@ -1,0 +1,82 @@
+# Input Data Explanation for Medical Image Segmentation Project
+
+## Data Structure Overview
+
+The project uses a structured approach to handle medical image data with the following organization:
+
+### 1. Raw Data Directories
+- `Database/` - Contains raw input medical images
+- `Database_gt/` - Contains corresponding ground truth annotation images
+
+### 2. Processed Data Directories
+- `Main/data/im/` - Processed input images (101 PNG files numbered 0-100)
+- `Main/data/gt/` - Processed ground truth binary masks (101 PNG files numbered 0-100)
+
+### 3. Intermediate Processing Directories
+- `Output/roi/` - Region of Interest extracted images
+- `Output/t2fcs/` - T2FCS filtered images
+- `Output/segmented/` - Segmented images
+- `Output/rotation/` - Rotated augmented images
+- `Output/cropping/` - Cropped augmented images
+
+## Data Preparation Process
+
+### Step 1: Initial Data Preparation (`Main/prepare_data.py`)
+1. **Input**: Raw images from `Database/` and annotations from `Database_gt/`
+2. **Processing**:
+   - Recursively walks through directory structure to find image pairs
+   - Resizes images to 128x128 pixels
+   - Converts ground truth images to binary masks:
+     - Identifies pixels with RGB values (0, 242, 255) as positive class
+     - Converts these to white (255) pixels in binary mask
+     - All other pixels become black (0)
+3. **Output**: Saves processed image pairs to `Main/data/im/` and `Main/data/gt/`
+
+### Step 2: Preprocessing Pipeline (`Main/Pre_processing.py`)
+1. **ROI Extraction**: Selects region of interest from input images
+2. **T2FCS Filtering**: Applies Two-Threshold Fuzzy Contrast Stretching for enhancement
+3. **Segmentation**: Uses the proposed SegNet model for initial segmentation
+4. **Output**: Saves intermediate results to respective Output directories
+
+### Step 3: Data Augmentation (`Main/Augmentation.py`)
+1. **Rotation**: Applies geometric transformation with 30° and 10° rotations
+2. **Cropping**: Removes 30% from top-left corners
+3. **Feature Extraction**: 
+   - Computes histograms for regions inside and outside segmentation masks
+   - Generates feature vectors for both original and augmented images
+4. **Output**: 
+   - Saves augmented images to `Output/rotation/` and `Output/cropping/`
+   - Generates `Feat.csv` (feature vectors) and `Label.csv` (class labels: 0 or 1)
+
+## How Images Are Used
+
+### Training Data Flow
+1. **Medical Images**: Original medical scans stored as PNG files in `Main/data/im/`
+2. **Ground Truth Masks**: Binary annotations in `Main/data/gt/` indicating regions of interest
+3. **Feature Extraction**: Histogram-based features computed from image regions
+4. **Model Training**: Five different models trained on the same feature set:
+   - DCNN (Deep Convolutional Neural Network)
+   - Panoptic Model (ResNet50-based)
+   - Focal-Net (CNN with LeakyReLU)
+   - ResNet (Standard ResNet implementation)
+   - Proposed HFGSO-based DRN (Hybrid optimization approach)
+
+### Image Processing Techniques
+1. **ROI Selection**: Focuses processing on relevant image regions
+2. **Contrast Enhancement**: T2FCS filtering improves image quality for segmentation
+3. **Segmentation**: Deep learning models identify and outline regions of interest
+4. **Data Augmentation**: Increases dataset diversity through rotation and cropping
+5. **Feature Engineering**: Histogram analysis captures statistical properties of image regions
+
+## File Types and Formats
+- **Images**: PNG format (lossless compression suitable for medical data)
+- **Features**: CSV files containing numerical feature vectors
+- **Labels**: CSV file with binary class labels (0 for background, 1 for region of interest)
+
+## Data Characteristics
+- **Dataset Size**: 101 image pairs
+- **Image Dimensions**: 128x128 pixels after preprocessing
+- **Classes**: Binary classification (background vs. region of interest)
+- **Applications**: Likely prostate MRI analysis based on comments in GUI code
+
+This structured approach ensures consistent data processing and enables fair comparison between different machine learning models for medical image segmentation.
