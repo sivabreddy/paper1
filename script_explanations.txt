@@ -1,0 +1,177 @@
+# Script Explanations for Medical Image Analysis Project
+
+## Main Directory Scripts
+
+### Main/Proposed_SegNet.py
+Implements the primary segmentation model based on modified SegNet architecture with:
+- Encoder-decoder structure with 13 convolutional blocks each
+- Batch normalization for stable training
+- Custom hybrid loss function combining cross-entropy and Dice coefficient
+- Integration with HFGSO optimization for weight enhancement
+- Produces pixel-level segmentation masks for medical images
+
+### Main/Pre_processing.py
+Handles the complete image processing pipeline including:
+- ROI (Region of Interest) extraction from input images
+- T2FCS (Two-Threshold Fuzzy Contrast Stretching) filtering for enhancement
+- Image segmentation using the proposed SegNet model
+- Data augmentation of segmented images
+- Feature extraction through histogram analysis
+- Orchestrates the flow from raw images to classified features
+
+### Main/Augmentation.py
+Performs data augmentation techniques on medical images:
+- Image rotation using geometric transformation matrices
+- Image cropping by removing portions from top-left corners
+- Resizing augmented images to standard dimensions (256×256)
+- Returns both rotated and cropped versions for diversity
+
+### Main/prepare_data.py
+Prepares raw medical image datasets for processing:
+- Creates required directory structure for data organization
+- Processes raw images and corresponding ground truth annotations
+- Converts RGB ground truth images to binary masks using specific color values
+- Resizes and saves processed image pairs in standardized format
+- Filters out images without significant regions of interest
+
+### Main/read.py
+Provides utilities for reading processed data:
+- Reads feature vectors from Feat.csv file
+- Reads class labels from Label.csv file
+- Handles CSV parsing and data conversion to appropriate formats
+- Returns data structures ready for model training and evaluation
+
+### Main/GUI.py
+Implements the main graphical user interface:
+- Tkinter-based application with data selection controls
+- Training parameter configuration (dataset, training percentage)
+- Results display in tabular format with accuracy metrics
+- Visualization through bar chart plotting
+- Controls for starting processing and viewing results
+
+### Main/Run.py
+Serves as the main execution controller:
+- Coordinates the entire processing pipeline
+- Calls preprocessing functions to prepare data
+- Invokes feature reading utilities
+- Executes all five comparative models (HFGSO-DRN, ResNet, DCNN, Focal-Net, Panoptic)
+- Collects and returns performance metrics for all approaches
+
+### Main/Result_graphs.py
+Generates performance visualization graphs:
+- Creates plots for accuracy, sensitivity, and specificity metrics
+- Compares performance across all five models
+- Produces bar charts and other visual representations
+- Saves graphical results for analysis and reporting
+
+### Image_GUI.py
+Provides a specialized interface for individual image processing:
+- File dialog for selecting input medical images
+- Step-by-step visualization of processing stages
+- Displays ROI extraction, T2FCS filtering, and segmentation results
+- Standalone tool for examining pipeline behavior on single images
+
+## DCNN Directory Scripts
+
+### DCNN/dcnn.py
+Implements a custom deep convolutional neural network:
+- Hand-crafted CNN architecture with convolutional and fully connected layers
+- Custom layer implementations including convolution, pooling, and normalization
+- Training and prediction functions for feature classification
+- Uses NumPy-based computations rather than high-level frameworks
+
+### DCNN/nn_layers.py
+Contains custom neural network layer implementations:
+- Convolutional layers with manual gradient computation
+- Pooling layers with index tracking for backpropagation
+- Fully connected layers with weight initialization
+- Activation functions (ReLU, Sigmoid, Tanh, LeakyReLU)
+- Batch normalization and softmax layers
+
+### DCNN/DCNN_run.py
+Handles execution of the DCNN model:
+- Data splitting into training and testing sets
+- Feature reshaping for CNN input compatibility
+- Model training and prediction execution
+- Performance metric calculation (accuracy, sensitivity, specificity)
+
+## ResNet Directory Scripts
+
+### ResNet/Resnet.py
+Implements the ResNet (Residual Network) model:
+- Standard ResNet architectures (versions 1 and 2)
+- Residual blocks with skip connections to prevent degradation
+- Configurable depth and filter configurations
+- Integration with Keras for efficient implementation
+
+### ResNet/run.py
+Executes the ResNet baseline model:
+- Data preparation and train/test splitting
+- Model instantiation and HFGSO weight optimization
+- Prediction generation on test data
+- Performance metric calculation and storage
+
+## Focal_Net Directory Scripts
+
+### Focal_Net/Focal_net.py
+Implements a simplified CNN approach:
+- Basic convolutional network with LeakyReLU activation
+- Max pooling for dimensionality reduction
+- Fully connected layers for classification
+- Functions for data processing and model evaluation
+- Serves as lightweight baseline comparison
+
+## Panoptic_model Directory Scripts
+
+### Panoptic_model/Panoptic.py
+Implements a ResNet50-based classification model:
+- Transfer learning approach using established architecture
+- SMOTE (Synthetic Minority Oversampling Technique) for class balancing
+- Data preprocessing for ResNet50 compatibility
+- Performance evaluation with medical imaging metrics
+
+## Proposed_HFGSO_DRN Directory Scripts
+
+### Proposed_HFGSO_DRN/DRN.py
+Implements the Deep Residual Network component:
+- ResNet-based architecture with residual connections
+- Configurable versions (v1 and v2) with different shortcut types
+- Adaptive learning rate scheduling
+- Model compilation with appropriate optimizers and metrics
+
+### Proposed_HFGSO_DRN/HFGSO.py
+Implements Hybrid Feature Guided Swarm Optimization:
+- Nature-inspired optimization algorithm combining physics and biology concepts
+- Henry's gas solubility principles with particle swarm optimization
+- Feature-guided fitness evaluation for medical image characteristics
+- Weight optimization for neural network enhancement
+
+### Proposed_HFGSO_DRN/run.py
+Coordinates the proposed approach execution:
+- Main classification function integrating DRN and HFGSO
+- Data preparation and model instantiation
+- Weight optimization through HFGSO before training
+- Prediction generation and performance metric calculation
+
+## Configuration and Documentation Files
+
+### requirements.txt
+Lists all required Python packages with specific versions:
+- Core dependencies (TensorFlow, Keras, OpenCV, NumPy)
+- Visualization libraries (Matplotlib)
+- Image processing tools (scikit-image)
+- Machine learning utilities (scikit-learn, imbalanced-learn)
+
+### README.md
+Project documentation including:
+- Overview of key features and implemented models
+- Project structure and component descriptions
+- Installation and usage instructions
+- Model architecture diagrams and explanations
+
+### steps to install python.docx
+Installation guide for setting up the Python environment:
+- Python version requirements
+- Package installation commands
+- Environment configuration steps
+- Troubleshooting common installation issues

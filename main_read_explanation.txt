@@ -1,0 +1,51 @@
+# Main/read.py: Data Reading Utility
+
+## Purpose
+Main/read.py is a utility script that provides functions to read processed feature data and corresponding labels from CSV files. It serves as the data input interface for the classification models in the medical image analysis pipeline.
+
+## Functions
+
+### read_data()
+Reads feature vectors from "Feat.csv" file:
+- **Input**: None (reads from Feat.csv in the Main directory)
+- **Process**: 
+  1. Opens and parses the CSV file using Python's csv module
+  2. Converts each CSV row into a list of floating-point numbers
+  3. Returns a list of lists, where each inner list represents one sample's features
+- **Output**: List of feature vectors for model training/testing
+
+### read_label()
+Reads class labels from "Label.csv" file:
+- **Input**: None (reads from Label.csv in the Main directory)
+- **Process**: 
+  1. Opens and parses the CSV file using Python's csv module
+  2. Converts each value to an integer (0 or 1)
+  3. Returns a flat list of class labels
+- **Output**: List of integer class labels corresponding to feature vectors
+
+## Data Generation Context
+These CSV files are generated during the preprocessing pipeline:
+1. **Image Processing**: Medical images are processed through segmentation and augmentation
+2. **Feature Extraction**: Histogram features are computed for regions inside and outside segmentation masks
+3. **Data Augmentation**: Multiple variations (original, rotated, cropped) create diverse samples
+4. **CSV Export**: Features and labels are saved to Feat.csv and Label.csv respectively
+
+## Feature Details
+- **Feat.csv**: Contains 100-bin histogram features for each image region
+- **Label.csv**: Binary labels (0 for background regions, 1 for regions of interest)
+- **Relationship**: Each row in Feat.csv corresponds to a value in Label.csv
+
+## Usage in Pipeline
+The read.py functions are called by classification models:
+1. **HFGSO-DRN**: Reads features for the proposed approach
+2. **ResNet**: Loads data for baseline comparison
+3. **DCNN**: Imports features for custom CNN training
+4. **Focal-Net**: Retrieves data for simplified model
+5. **Panoptic Model**: Accesses features for transfer learning approach
+
+## Error Handling
+- Checks for file existence before reading
+- Raises FileNotFoundError with descriptive messages if files are missing
+- Includes debug prints to help diagnose path issues
+
+This utility bridges the gap between the preprocessing pipeline (which generates CSV files) and the classification models (which consume the data), ensuring consistent data access across all comparative approaches.
