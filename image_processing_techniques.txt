@@ -1,0 +1,223 @@
+# Image Processing Techniques in Medical Image Analysis Framework
+
+## Overview
+This document explains the various image processing techniques implemented in the medical image analysis framework. These techniques are essential for preparing medical images for analysis, enhancing image quality, increasing dataset diversity, and extracting meaningful features for classification.
+
+## 1. Region of Interest (ROI) Extraction
+
+### Purpose
+ROI extraction focuses processing on the most relevant part of an image, reducing computational complexity and improving accuracy by eliminating irrelevant background information.
+
+### Implementation
+Located in `Main/Pre_processing.py` in the `Select_Roi()` function:
+
+```python
+def Select_Roi(med_im, count):
+    # Get center coordinates of image
+    r, c, _ = np.asarray((med_im.shape)) // 2
+    # Extract ROI by slicing (removing margins)
+    roi = med_im[r - r + 10:r + r - 20, c - c + 20:c + c - 20]
+    return roi
+```
+
+### Technique Details
+- Calculates center coordinates of the input image
+- Extracts a rectangular region by removing margins:
+  - Removes 10 pixels from top, 20 pixels from bottom
+  - Removes 20 pixels from left and right sides
+- Saves the extracted ROI to `Output/roi/` directory
+
+### Benefits
+- Reduces image size for faster processing
+- Focuses on the central region where medical features are typically located
+- Eliminates edge artifacts and irrelevant background
+
+## 2. Two-Threshold Fuzzy Contrast Stretching (T2FCS)
+
+### Purpose
+T2FCS is an advanced image enhancement technique that improves contrast in medical images using fuzzy logic principles and neighborhood processing.
+
+### Implementation
+Located in `Main/Pre_processing.py` in the `T2FCS()` function:
+
+```python
+def T2FCS(m5):
+    def T2FCS_Filtering(image, row, col):
+        # Neighborhood processing
+        # Calculates average of current pixel and 8-connected neighbors
+        # Applies fuzzy contrast stretching based on thresholds
+        # ...
+    # Apply filtering to each pixel and color channel
+```
+
+### Technique Details
+- Processes each pixel considering its 8-connected neighborhood
+- Uses three threshold ranges (T1, T2, T3) for different contrast enhancement strategies
+- Applies fuzzy logic to determine contrast stretching factors
+- Processes each color channel separately (BGR)
+- Thresholds:
+  - T1: ±2 around base threshold (10)
+  - T2: ±4 around base threshold (10)
+  - T3: ±8 around base threshold (10)
+
+### Algorithm Steps
+1. For each pixel, calculate neighborhood average
+2. Determine which threshold range the mean value falls into
+3. Apply appropriate contrast enhancement formula:
+   - T1 range: Full contrast enhancement
+   - T2 range: Moderate enhancement
+   - T3 range: No change
+   - Outside ranges: Replace with neighborhood average
+
+### Benefits
+- Improves visibility of subtle medical features
+- Preserves important structural information
+- Adapts enhancement based on local image characteristics
+- Particularly effective for medical images with low contrast
+
+## 3. Image Augmentation
+
+### Purpose
+Augmentation increases dataset diversity and size, helping to prevent overfitting and improve model generalization.
+
+### Implementation
+Located in `Main/Augmentation.py` in the `Augmentation()` function:
+
+```python
+def Augmentation(input_im):
+    # Rotation augmentation
+    rows, cols, dim = input_im.shape
+    angle = np.radians(30)  # Convert 30 degrees to radians
+    
+    # Create transformation matrix
+    M = np.float32([[np.cos(angle), -(np.sin(angle)), 0],
+                    [np.sin(angle), np.cos(angle), 0],
+                    [0, 0, 1]])
+    
+    # Apply perspective transformation
+    rotated_img = cv2.warpPerspective(input_im, M, (int(cols), int(rows)))
+    
+    # Additional rotation with OpenCV function
+    height, width = input_im.shape[:2]
+    rotation_matrix = cv2.getRotationMatrix2D((width / 2, height / 2), 50, .5)
+    
+    # Cropping augmentation
+    cropped_image = input_im[int(cols*0.3):, int(cols*0.3):]  # Remove 30% from top-left
+    
+    return rotated_img, cropped_image
+```
+
+### Techniques Implemented
+
+#### 3.1 Rotation
+- **Geometric Transformation**: Uses a 3x3 transformation matrix for rotation
+- **Angle**: 30 degrees (converted to radians)
+- **Method**: Perspective warping using `cv2.warpPerspective()`
+- **Additional Rotation**: 50-degree rotation with scaling factor of 0.5 using `cv2.getRotationMatrix2D()`
+
+#### 3.2 Cropping
+- **Percentage**: Removes 30% from both top and left edges
+- **Method**: Array slicing to extract bottom-right portion
+- **Result**: Smaller image focusing on different region
+
+### Post-Processing
+Both augmented images are resized to 256x256 pixels using nearest neighbor interpolation.
+
+### Benefits
+- Increases dataset size by generating variations
+- Improves model robustness to different orientations
+- Helps models generalize to partially occluded regions
+- Provides more training examples for feature extraction
+
+## 4. Segmentation Visualization
+
+### Purpose
+Marks segmentation results on original images for visualization and verification.
+
+### Implementation
+Located in `Main/Pre_processing.py` in the `mark_seg_in_orgim()` function:
+
+```python
+def mark_seg_in_orgim(input, seg):
+    # Resize images to 256x256
+    input = cv2.resize(input, dsize=(256, 256), interpolation=cv2.INTER_NEAREST)
+    input = cv2.cvtColor(input, cv2.COLOR_GRAY2BGR)
+    seg = cv2.resize(seg, dsize=(256, 256), interpolation=cv2.INTER_NEAREST)
+    
+    # Mark segmentation boundary with cyan color
+    for i in range(seg.shape[0]):
+        for j in range(seg.shape[1]):
+            if (seg[i][j] == 255):
+                input[i + 1][j] = (0, 255, 255)  # Cyan color
+                input[i][j + 2] = (0, 255, 255)
+```
+
+### Technique Details
+- Resizes both input and segmentation mask to 256x256
+- Converts grayscale input to BGR for color marking
+- Marks white pixels (value 255) in segmentation mask with cyan color
+- Offsets marking by 1-2 pixels for better visibility
+
+## 5. Feature Extraction from Augmented Images
+
+### Purpose
+Extracts histogram-based features from regions inside and outside segmentation masks for classification.
+
+### Implementation
+Located in `Main/Pre_processing.py` in the `augment()` function:
+
+```python
+# Extract histograms for regions outside segmentation mask (background)
+f1 = np.histogram(input[~seg], 100)
+Feat.append(f1[0].tolist())
+label.append(0)  # Background label
+
+# Extract histograms for regions inside segmentation mask (foreground)
+f2 = np.histogram(input[seg], 100)
+Feat.append(f2[0].tolist())
+label.append(1)  # Foreground label
+```
+
+### Technique Details
+- Uses NumPy's histogram function with 100 bins
+- Separates pixels based on segmentation mask values
+- `input[~seg]`: Pixels where segmentation mask is False (background)
+- `input[seg]`: Pixels where segmentation mask is True (foreground)
+- Generates both original and augmented image features
+- Saves features to `Feat.csv` and labels to `Label.csv`
+
+## 6. Complete Processing Pipeline
+
+### Workflow Sequence
+1. **ROI Extraction**: Focus on central image region
+2. **T2FCS Filtering**: Enhance image contrast
+3. **Segmentation**: Apply SegNet for initial segmentation
+4. **Visualization**: Mark segmentation on original image
+5. **Augmentation**: Generate rotated and cropped variants
+6. **Feature Extraction**: Compute histograms for classification
+
+### Directory Structure for Outputs
+- `Output/roi/`: ROI extracted images
+- `Output/t2fcs/`: T2FCS filtered images
+- `Output/segmented/`: Segmented images with markings
+- `Output/rotation/`: Rotated augmented images
+- `Output/cropping/`: Cropped augmented images
+
+## 7. Technical Implementation Notes
+
+### Libraries Used
+- **OpenCV**: Image processing and transformations
+- **NumPy**: Numerical computations and array operations
+- **Matplotlib**: Visualization (imported but not used in current implementation)
+
+### Image Resizing
+All processed images are resized to 256x256 pixels using nearest neighbor interpolation for consistency.
+
+### Color Space Handling
+- BGR color space used throughout (OpenCV default)
+- Conversion to grayscale when needed for processing
+- Conversion back to BGR for visualization
+
+## Conclusion
+
+These image processing techniques form a comprehensive pipeline for preparing medical images for analysis. Each technique serves a specific purpose in enhancing image quality, increasing dataset diversity, and extracting meaningful features for classification. The combination of ROI extraction, contrast enhancement, segmentation, and augmentation creates a robust foundation for accurate medical image analysis.
